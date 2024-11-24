@@ -107,7 +107,7 @@ def atmosphere_attenuation(
         distance: The distance the signal moves in the atmosphere in meters.
         peak_spectral_wavelength:
             The wavelength of the peak spectral power in meters (unused).
-        atmos_trans_consts: constants taken from FLIR image metadata.
+        atmos_consts: constants taken from FLIR image metadata.
 
     Returns:
         The transmittance factor of the atmosphere.
@@ -146,6 +146,7 @@ def raw_temp_to_celcius(
     raw: np.ndarray,
     emissivity: float = 1,
     subject_distance: float = 1,
+    focus_distance: float = 0,
     reflected_temp: float = 20,
     atmospheric_temp: Optional[float] = None,
     ir_window_temp: Optional[float] = None,
@@ -162,6 +163,7 @@ def raw_temp_to_celcius(
         raw: The raw ADC FLIR data.
         emissivity: ratio between 0 and 1, depends on subject material
         subject_distance: distance from camera to subject in meters
+        focus_distance: distance from camera do thermal window
         reflected_temp: temperature reflected by the subject in Celcius
         atmospheric_temp:
           temperature of the atmosphere (default: reflected_temperature)
@@ -172,7 +174,7 @@ def raw_temp_to_celcius(
           the ratio of IR transmitted throught the window
         humidity: relative_humidity
         planck: calibration constants
-        atmos_trans_consts: atmospheric transmission constants from metadata
+        atmos_consts: atmospheric transmission constants from metadata
         peak_spectral_sensitivity:
             wavelength of highest sensitivity in micrometers
 
@@ -196,8 +198,11 @@ def raw_temp_to_celcius(
     # Note: for this script,
     # we assume the thermal window is at the mid-point (OD/2)
     # between the source and the camera sensor
-    # TODO: use actual thermal window distance
-    subject_distance_to_window = subject_distance / 2
+    # if the focus distance is not zero
+
+    subject_distance_to_window = (
+        focus_distance if focus_distance > 0 else subject_distance / 2
+    )
     sensor_distance_to_window = subject_distance - subject_distance_to_window
 
     antenuation_b4_window = atmosphere_attenuation(
@@ -257,8 +262,8 @@ def raw_temp_to_celcius(
 
     raw_obj_radiance = raw / divisor - non_object_radiance
 
-    raw_object_temperature_k = planck.b / np.log(
-        planck.r1 / planck.r2 / (raw_obj_radiance + planck.zero) + planck.f
-    )
+    log_input = planck.r1 / planck.r2 / (raw_obj_radiance + planck.zero) + planck.f
+
+    raw_object_temperature_k = planck.b / np.log(log_input)
     raw_object_temperature_c = raw_object_temperature_k - CELCIUS_KELVIN_DIFF
     return raw_object_temperature_c

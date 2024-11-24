@@ -38,7 +38,11 @@ def _get_tag_bytes(exiftool: ExifTool, tag: typing.Text, filepath: Path) -> byte
     return exiftool.execute(*params_as_bytes)
 
 
-def _get_raw_np(exiftool: ExifTool, filepath: Path) -> np.ndarray:
+def _get_raw_np(
+    exiftool: ExifTool,
+    filepath: Path,
+    resize: bool,
+) -> np.ndarray:
     """Gets the raw thermal data from a FLIR image.
 
     These needed to be converted using the calibration constants into a
@@ -47,22 +51,30 @@ def _get_raw_np(exiftool: ExifTool, filepath: Path) -> np.ndarray:
     Parameters:
         exiftool: The ExifTool process to use.
         filepath: The path to the file to load.
+        resize: If True, returns the raw thermal data with same dimension as the image.
 
     Returns:
         The raw data as a 2-D numpy array.
     """
     raw_image_bytes = _get_tag_bytes(exiftool, "RawThermalImage", filepath)
     # we can't use Image.frombytes(), since bytes is not just the pixel data
+    if len(raw_image_bytes) == 0:  # no thermal image
+        return np.array(None)
     fp = io.BytesIO(raw_image_bytes)
     image = Image.open(fp)
+    image_format = image.format
+    if resize:
+        image = image.resize(Image.open(filepath).size, Image.Resampling.NEAREST)
     as_array = np.array(image)
-    if image.format == "PNG":
+    if image_format == "PNG":
         # bug in FLIR cameras -> they sometimes save in little-endian format
-        as_array = as_array.astype("uint16").newbyteorder()
+        as_array = as_array.astype("uint16")
+        as_array = np.vectorize(lambda x: (x >> 8) + ((x & 0x00FF) << 8))(as_array)
+        # as_array = as_array.view(as_array.dtype.newbyteorder())
     return as_array
 
 
-def get_thermal(exiftool: ExifTool, filepath: Path) -> np.ndarray:
+def get_thermal(exiftool: ExifTool, filepath: Path, resize: bool = False) -> np.ndarray:
     """Loads the thermal image from a single FLIR image.
 
     Please use `get_thermal_batch` for efficiency if you are loading
@@ -71,13 +83,14 @@ def get_thermal(exiftool: ExifTool, filepath: Path) -> np.ndarray:
     Parameters:
         exiftool: The ExifTool process to use.
         filepath: The path to the file to load.
+        resize: If True, returns the thermal data with same dimension as the image.
 
     Returns:
         The thermal data in Celcius as a 2-D numpy array.
     """
     filepaths = (filepath,)
     # get first result from get_thermal_batch
-    return next(iter(get_thermal_batch(exiftool, filepaths)))
+    return next(iter(get_thermal_batch(exiftool, filepaths, resize)))
 
 
 atmos_exif_var_tags = dict(
@@ -125,6 +138,7 @@ def _extract_metadata_constants(input_dict: typing.Mapping[str, float]) -> typin
 exif_var_tags = dict(
     emissivity="Emissivity",
     subject_distance="SubjectDistance",
+    focus_distance="FocusDistance",
     reflected_temp="ReflectedApparentTemperature",
     atmospheric_temp="AtmosphericTemperature",
     ir_window_temp="IRWindowTemperature",
@@ -150,7 +164,7 @@ def convert_exif_tag_to_py(full_exif_tag: str) -> str:
 
 def convert_image(
     metadata: typing.Mapping[typing.Text, typing.Any], raw_np: np.ndarray
-) -> np.ndarray:
+) -> np.ndarray | None:
     """Converts raw FLIR thermal data into Celcius using metadata.
 
     Parameters:
@@ -169,26 +183,31 @@ def convert_image(
     planck_consts, atmos_consts, remainder = _extract_metadata_constants(
         converted_metadata
     )
+    if np.any(raw_np == None):  # no thermal image
+        return None
     return raw_temp_to_celcius(
         raw_np, planck=planck_consts, atmos_consts=atmos_consts, **remainder
     )
 
 
 def get_thermal_batch(
-    exiftool: ExifTool, filepaths: typing.Iterable[Path]
+    exiftool: ExifTool,
+    filepaths: typing.Iterable[Path],
+    resize: bool = False,
 ) -> typing.Iterable[np.ndarray]:
     """Loads the thermal images from multiple FLIR images.
 
     Parameters:
         exiftool: The ExifTool process to use.
         filepaths: A list of paths to the files to load.
+        resize: If True, returns the thermal data with same dimension as the image.
 
     Returns:
         A list of thermal data in Celcius as 2-D numpy arrays.
     """
     str_paths = [get_str_filepath(filepath) for filepath in filepaths]
     metadata = exiftool.get_tags_batch(exif_var_tags.values(), str_paths)
-    raw_images = [_get_raw_np(exiftool, filepath) for filepath in str_paths]
+    raw_images = [_get_raw_np(exiftool, filepath, resize) for filepath in str_paths]
     return [
         convert_image(image_metadata, raw_image)
         for image_metadata, raw_image in zip(metadata, raw_images)
