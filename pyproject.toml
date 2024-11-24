@@ -1,43 +1,26 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "flir_thermal_extractor"
+version = "0.1.0"
+authors = [{"name" = "pvbernhard", "email" = "pvbernhard@gmail.com"}]
+description = "FLIR thermal extractor"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+#[project.scripts]
+#my-command = "my_package.cli:main"
+
 [tool.black]
-line-length = 79
-exclude = "scripts/example.py|.venv"
+line-length = 88
 
 [tool.isort]
 profile = "black"
-line_length = 79
-skip_glob = "*.md"
-filter_files = true
-skip = ["scripts/example.py"]
+multi_line_output = 3
 
-[tool.poetry]
-name = "flirextractor"
-version = "1.0.2"
-description = "An efficient GPLv3-licensed Python package for extracting temperature data from FLIR IRT images."
-authors = ["Alois Klink <alois.klink@gmail.com>"]
-license = "GPL-3.0+"
-readme = "README.md"
-repository = "https://github.com/aloisklink/flirextractor"
-homepage = "https://github.com/aloisklink/flirextractor"
-classifiers = [
-    "Intended Audience :: Science/Research",
-    "Topic :: Multimedia :: Graphics :: Capture :: Digital Camera",
-]
-
-[tool.poetry.dependencies]
-python = "^3.6"
-pyexiftool = "^0.1.1"
-pillow = ">=6.2 <=8.0.0"
-numpy = "^1.17"
-
-[tool.poetry.dev-dependencies]
-black = "^19.10b0"
-mypy = "^0.782"
-flake8 = "^3.7"
-pytest = "^5.2"
-tomlkit = "^0.7.0"
-isort = "^5.0.0"
-pre-commit = "^2.0.0"
-
-[build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
+[tool.pytest.ini_options]
+addopts = "-ra -q"
+testpaths = ["tests"]

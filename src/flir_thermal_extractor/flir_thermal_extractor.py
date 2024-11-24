@@ -83,9 +83,7 @@ class FlirExtractor:
         """
         return get_thermal(self.exiftool, filepath)
 
-    def get_thermal_batch(
-        self, filepaths: Iterable[Path]
-    ) -> Iterable["np.ndarray"]:
+    def get_thermal_batch(self, filepaths: Iterable[Path]) -> Iterable["np.ndarray"]:
         """Gets thermal images from a list of FLIR files.
 
         Parameters:

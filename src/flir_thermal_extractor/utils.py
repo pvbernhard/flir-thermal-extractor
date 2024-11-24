@@ -1,12 +1,14 @@
 """Stores utilility functions that don't go anywhere else.
 """
+
 import typing
 
 V = typing.TypeVar("V")
 
 
 def split_dict(
-    input_dict: typing.Mapping[str, V], include: typing.Iterable[str],
+    input_dict: typing.Mapping[str, V],
+    include: typing.Iterable[str],
 ) -> typing.Tuple[typing.Dict[str, V], typing.Dict[str, V]]:
     """Splits a dict into two by key
 

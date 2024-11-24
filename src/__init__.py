@@ -1,0 +1,1 @@
+from flir_thermal_extractor import FlirExtractor

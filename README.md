@@ -1,4 +1,4 @@
-# flirextractor
+# flir-thermal-extractor
 
 <p align="center">
 <a href="https://pypi.org/project/flirextractor/"><img alt="PyPI" src="https://img.shields.io/pypi/v/flirextractor"></a>
@@ -63,7 +63,8 @@ Each FLIR infrared image is loaded in Celsius as a 2-dimensional
 To load data from a single FLIR file, run:
 
 ```python3
-from flirextractor import FlirExtractor
+from src import FlirExtractor
+
 with FlirExtractor() as extractor:
     thermal_data = extractor.get_thermal("path/to/FLIRimage.jpg")
 ```
@@ -72,7 +73,8 @@ Data can also be loaded from multiple FLIR files at once in batch mode,
 which is slightly more efficient:
 
 ```python3
-from flirextractor import FlirExtractor
+from src import FlirExtractor
+
 with FlirExtractor() as extractor:
     list_of_thermal_data = extractor.get_thermal_batch(
         ["path/to/FLIRimage.jpg", "path/to/another/FLIRimage.jpg"])

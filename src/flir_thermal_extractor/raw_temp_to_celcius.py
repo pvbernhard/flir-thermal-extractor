@@ -33,6 +33,7 @@ References:
 
 import math
 import typing
+from typing import Optional
 
 import numpy as np  # type: ignore
 
@@ -57,8 +58,8 @@ def water_vapor_pressure(temp: float) -> float:
             (
                 1.5587,
                 0.06939 * temp,
-                -0.00027816 * (temp ** 2),
-                0.00000068455 * (temp ** 3),
+                -0.00027816 * (temp**2),
+                0.00000068455 * (temp**3),
             )
         )
     )
@@ -129,10 +130,12 @@ def atmosphere_attenuation(
         return -math.sqrt(distance) * (alpha + beta * sqrt_water_pressure)
 
     exponential_1 = exponential_term(
-        alpha=atmos_consts.alpha_1, beta=atmos_consts.beta_1,
+        alpha=atmos_consts.alpha_1,
+        beta=atmos_consts.beta_1,
     )
     exponential_2 = exponential_term(
-        alpha=atmos_consts.alpha_2, beta=atmos_consts.beta_2,
+        alpha=atmos_consts.alpha_2,
+        beta=atmos_consts.beta_2,
     )
     part_1 = atmos_consts.x * math.exp(exponential_1)
     part_2 = (1 - atmos_consts.x) * math.exp(exponential_2)
@@ -144,8 +147,8 @@ def raw_temp_to_celcius(
     emissivity: float = 1,
     subject_distance: float = 1,
     reflected_temp: float = 20,
-    atmospheric_temp: float = None,
-    ir_window_temp: float = None,
+    atmospheric_temp: Optional[float] = None,
+    ir_window_temp: Optional[float] = None,
     ir_window_transmission: float = 1,
     humidity: float = 0.5,
     planck: CameraPlanckConsts = CameraPlanckConsts(),
@@ -234,9 +237,7 @@ def raw_temp_to_celcius(
     radiance_window = window_emissivity / divisor * radiance(ir_window_temp)
 
     # attenuated reflection from the window
-    reflected_after_window = (
-        window_reflection / divisor * radiance(reflected_temp)
-    )
+    reflected_after_window = window_reflection / divisor * radiance(reflected_temp)
 
     # attenuated radiance from the atmosphere (after the window)
     divisor *= antenuation_after_window

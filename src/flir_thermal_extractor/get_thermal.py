@@ -2,6 +2,7 @@
 
 Calls exiftool to extract the embedded image and metadata from the FLIR file.
 """
+
 import io
 import typing
 
@@ -18,9 +19,7 @@ from .raw_temp_to_celcius import (
 from .utils import split_dict
 
 
-def _get_tag_bytes(
-    exiftool: ExifTool, tag: typing.Text, filepath: Path
-) -> bytes:
+def _get_tag_bytes(exiftool: ExifTool, tag: typing.Text, filepath: Path) -> bytes:
     """Gets the data of a tag in a file in bytes using exiftool.
 
     No batch version is possible, as there is no way to seperate the bytes
@@ -91,17 +90,21 @@ atmos_exif_var_tags = dict(
 
 
 planck_exif_var_tags = dict(
-    r1="PlanckR1", b="PlanckB", f="PlanckF", zero="PlanckO", r2="PlanckR2",
+    r1="PlanckR1",
+    b="PlanckB",
+    f="PlanckF",
+    zero="PlanckO",
+    r2="PlanckR2",
 )
 MetadataWithConstants = typing.Dict[
     str, typing.Union[float, CameraPlanckConsts, AtmosphericTransConsts]
 ]
 
 
-def _extract_metadata_constants(
-    input_dict: typing.Mapping[str, float]
-) -> typing.Tuple[
-    CameraPlanckConsts, AtmosphericTransConsts, typing.Mapping[str, float],
+def _extract_metadata_constants(input_dict: typing.Mapping[str, float]) -> typing.Tuple[
+    CameraPlanckConsts,
+    AtmosphericTransConsts,
+    typing.Mapping[str, float],
 ]:
     """Extracts any constant values into their objects
 
@@ -141,8 +144,7 @@ def convert_exif_tag_to_py(full_exif_tag: str) -> str:
         if substr_exif_tag in full_exif_tag:
             return _inv_exif_var_tags[substr_exif_tag]
     raise KeyError(
-        f"Could not find exif_tag {full_exif_tag} "
-        f"in {_inv_exif_var_tags.keys()}."
+        f"Could not find exif_tag {full_exif_tag} " f"in {_inv_exif_var_tags.keys()}."
     )
 
 
