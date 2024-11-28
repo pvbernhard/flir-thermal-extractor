@@ -7,7 +7,7 @@ import io
 import typing
 
 import numpy as np  # type: ignore
-from exiftool import ExifTool, fsencode  # type: ignore
+from exiftool import ExifToolAlpha as ExifTool  # type: ignore
 from PIL import Image  # type: ignore
 
 from .pathutils import Path, get_str_filepath
@@ -34,8 +34,7 @@ def _get_tag_bytes(exiftool: ExifTool, tag: typing.Text, filepath: Path) -> byte
         The loaded metadata for the tag in `bytes`.
     """
     params = ["-b", f"-{tag}", str(filepath)]
-    params_as_bytes = map(fsencode, params)
-    return exiftool.execute(*params_as_bytes)
+    return exiftool.execute(*params, raw_bytes=True)
 
 
 def _get_raw_np(
@@ -206,7 +205,7 @@ def get_thermal_batch(
         A list of thermal data in Celcius as 2-D numpy arrays.
     """
     str_paths = [get_str_filepath(filepath) for filepath in filepaths]
-    metadata = exiftool.get_tags_batch(exif_var_tags.values(), str_paths)
+    metadata = exiftool.get_tags_batch_wrapper(exif_var_tags.values(), str_paths)
     raw_images = [_get_raw_np(exiftool, filepath, resize) for filepath in str_paths]
     return [
         convert_image(image_metadata, raw_image)

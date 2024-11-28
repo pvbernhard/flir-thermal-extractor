@@ -1,13 +1,14 @@
 from typing import TYPE_CHECKING, Iterable, Optional
 
-from exiftool import ExifTool  # type: ignore
-from exiftool import executable as exiftool_default_exe  # type: ignore
+from exiftool import ExifToolAlpha as ExifTool  # type: ignore
 
 from .get_thermal import get_thermal, get_thermal_batch
 from .pathutils import Path
 
 if TYPE_CHECKING:
     import numpy as np  # type: ignore
+
+exiftool_default_exe = ExifTool().executable
 
 
 class FlirExtractor:
@@ -52,8 +53,8 @@ class FlirExtractor:
         """
         if self._exiftool is not None:
             raise Exception("ExifTool was already initialized.")
-        self._exiftool = ExifTool(executable_=str(self.exiftoolpath))
-        self._exiftool.start()
+        self._exiftool = ExifTool(executable=str(self.exiftoolpath))
+        self._exiftool.run()
 
     def close(self):
         """Closes the Exiftool process.

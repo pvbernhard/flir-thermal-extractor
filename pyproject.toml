@@ -9,7 +9,11 @@ authors = [{"name" = "pvbernhard", "email" = "pvbernhard@gmail.com"}]
 description = "FLIR thermal extractor"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "numpy",
+    "pyexiftool",
+    "pillow",
+]
 
 #[project.scripts]
 #my-command = "my_package.cli:main"
