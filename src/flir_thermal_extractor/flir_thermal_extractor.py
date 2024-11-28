@@ -84,13 +84,16 @@ class FlirExtractor:
         """
         return get_thermal(self.exiftool, filepath)
 
-    def get_thermal_batch(self, filepaths: Iterable[Path]) -> Iterable["np.ndarray"]:
+    def get_thermal_batch(
+        self, filepaths: Iterable[Path], resize: bool = False
+    ) -> Iterable["np.ndarray"]:
         """Gets thermal images from a list of FLIR files.
 
         Parameters:
             filepaths: The paths to the FLIR files.
+            resize:
 
         Returns:
             A list of the thermal data in Celcius as 2-D numpy arrays.
         """
-        return get_thermal_batch(self.exiftool, filepaths)
+        return get_thermal_batch(self.exiftool, filepaths, resize)
