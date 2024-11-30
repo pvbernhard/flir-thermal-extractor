@@ -11,7 +11,7 @@ repos:
     rev: v0.8.1
     hooks:
     -   id: ruff
-        args: [ --select I --fix ]
+        args: [ '--select', 'I', '--fix' ]
     -   id: ruff-format
 
 -   repo: https://github.com/pre-commit/mirrors-mypy
