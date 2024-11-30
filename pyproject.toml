@@ -18,12 +18,11 @@ dependencies = [
 #[project.scripts]
 #my-command = "my_package.cli:main"
 
-[tool.black]
+[tool.ruff]
 line-length = 88
 
-[tool.isort]
-profile = "black"
-multi_line_output = 3
+[tool.ruff.format]
+docstring-code-format = true
 
 [tool.pytest.ini_options]
 addopts = "-ra -q"
