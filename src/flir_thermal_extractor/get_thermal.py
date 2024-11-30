@@ -113,7 +113,9 @@ MetadataWithConstants = typing.Dict[
 ]
 
 
-def _extract_metadata_constants(input_dict: typing.Mapping[str, float]) -> typing.Tuple[
+def _extract_metadata_constants(
+    input_dict: typing.Mapping[str, float],
+) -> typing.Tuple[
     CameraPlanckConsts,
     AtmosphericTransConsts,
     typing.Mapping[str, float],

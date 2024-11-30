@@ -1,5 +1,4 @@
-"""Stores utilility functions that don't go anywhere else.
-"""
+"""Stores utilility functions that don't go anywhere else."""
 
 import typing
 
