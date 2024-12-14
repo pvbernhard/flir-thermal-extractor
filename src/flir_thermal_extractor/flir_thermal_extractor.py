@@ -8,8 +8,6 @@ from .pathutils import Path
 if TYPE_CHECKING:
     import numpy as np  # type: ignore
 
-exiftool_default_exe = ExifTool().executable
-
 
 class FlirExtractor:
     """Extracts thermal data from FLIR images using ExifTool.
@@ -30,7 +28,9 @@ class FlirExtractor:
     exiftoolpath: Optional[Path]
     _exiftool: Optional[ExifTool]
 
-    def __init__(self, exiftoolpath: Path = exiftool_default_exe):
+    def __init__(self, exiftoolpath: Optional[Path] = None):
+        if exiftoolpath is None:
+            exiftoolpath = ExifTool().executable
         self.exiftoolpath = exiftoolpath
         self._exiftool = None
 
